@@ -1,0 +1,56 @@
+$(function(){
+	$(".follow-btn").click(follow);
+});
+
+function follow() {
+	var btn = this;
+
+	// 发送AJAX请求之前，将CSRF令牌设置到请求的消息头中
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	$(document).ajaxSend(function (e, xhr, options) {
+		xhr.setRequestHeader(header, token);
+	})
+
+	if($(btn).hasClass("btn-info")) {
+		// 关注TA
+		// $(btn).text("已关注").removeClass("btn-info").addClass("btn-secondary");
+
+		$.post(
+			CONTEXT_PATH + "/follow",
+			{
+				"entityType":3,
+				"entityId":$(btn).prev().val()
+			},
+			function (data) {
+				data = $.parseJSON(data);
+				if (data.code == 0) {
+					window.location.reload();
+				}
+				else {
+					alert(data.msg);
+				}
+			}
+		)
+	} else {
+		// 取消关注
+		// $(btn).text("关注TA").removeClass("btn-secondary").addClass("btn-info");
+
+		$.post(
+			CONTEXT_PATH + "/unfollow",
+			{
+				"entityType":3,
+				"entityId":$(btn).prev().val()
+			},
+			function (data) {
+				data = $.parseJSON(data);
+				if (data.code == 0) {
+					window.location.reload();
+				}
+				else {
+					alert(data.msg);
+				}
+			}
+		)
+	}
+}
